@@ -22,7 +22,7 @@ fi
 
 case "$OS_ID" in
   debian|ubuntu|linuxmint|kali|armbian)
-    pkg_update()  { apt update -y && apt upgrade -y; }
+    pkg_update()  { apt update -y; }
     pkg_install() { apt install -y "$@"; }
     install_build_deps() {
       apt-get install -y gcc g++ libpcre3 libpcre3-dev zlib1g zlib1g-dev openssl libssl-dev wget make 2>/dev/null || \
@@ -53,14 +53,14 @@ case "$OS_ID" in
     }
     ;;
   alpine)
-    pkg_update()  { apk update && apk upgrade; }
+    pkg_update()  { apk update; }
     pkg_install() { apk add "$@"; }
     install_build_deps() {
       apk add gcc g++ make pcre-dev pcre2-dev zlib-dev openssl-dev wget
     }
     ;;
   opensuse*|sles)
-    pkg_update()  { zypper refresh && zypper update -y; }
+    pkg_update()  { zypper refresh; }
     pkg_install() { zypper install -y "$@"; }
     install_build_deps() {
       zypper install -y -t pattern devel_basis
