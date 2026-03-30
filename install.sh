@@ -1,10 +1,4 @@
 #!/bin/bash
-# ============================================================
-# XHTTP + CDN 一键部署脚本
-# 支持: Debian / Ubuntu
-# 用法: bash install.sh
-# ============================================================
-
 set -e
 
 RED='\033[0;31m'
@@ -17,14 +11,10 @@ info()  { echo -e "${GREEN}[INFO]${NC} $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
 error() { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
 
-# ==================== 检查环境 ====================
 [[ $EUID -ne 0 ]] && error "请使用 root 用户运行此脚本"
 
-echo -e "${CYAN}========================================${NC}"
-echo -e "${CYAN}   XHTTP + CDN 一键部署脚本${NC}"
-echo -e "${CYAN}========================================${NC}"
-echo ""
-echo -e "${YELLOW}前置条件 (请确认已在 Cloudflare 完成):${NC}"
+echo -e "\n${CYAN}[+] XHTTP + CDN 一键部署脚本${NC}\n"
+echo -e "${YELLOW}[+] 前置条件 (请确认已在 Cloudflare 完成):${NC}"
 echo "  1. Reality 域名 DNS → 仅 DNS (灰色云朵)"
 echo "  2. CDN 域名 DNS    → 代理开启 (橙色云朵)"
 echo "  3. SSL/TLS 加密    → 完全(严格)"
@@ -42,8 +32,7 @@ info "Reality: $REALITY_DOMAIN"
 info "CDN:     $CDN_DOMAIN"
 echo ""
 
-# ==================== [1/6] 基础环境 ====================
-info "===== [1/6] 安装基础环境 ====="
+info "[1/6] 安装基础环境"
 
 apt update -y && apt upgrade -y
 apt install -y curl sudo socat cron
@@ -65,14 +54,14 @@ VPS_IP=$(curl -4 -s ip.sb)
 
 info "UUID1 (Vision): $UUID1"
 info "UUID2 (XHTTP):  $UUID2"
+info "Private Key:    $PRIVATE_KEY"
 info "Public Key:     $PUBLIC_KEY"
 info "Short ID:       $SHORT_ID"
 info "Path:           $XHTTP_PATH"
 info "VPS IP:         $VPS_IP"
 echo ""
 
-# ==================== [2/6] SSL 证书 ====================
-info "===== [2/6] 申请 SSL 证书 ====="
+info "[2/6] 申请 SSL 证书"
 
 curl https://get.acme.sh | sh
 ln -sf /root/.acme.sh/acme.sh /usr/local/bin/acme.sh
@@ -89,8 +78,7 @@ acme.sh --install-cert -d "$REALITY_DOMAIN" --ecc \
 
 echo ""
 
-# ==================== [3/6] 编译 Nginx ====================
-info "===== [3/6] 编译安装 Nginx ====="
+info "[3/6] 编译安装 Nginx"
 
 info "安装编译依赖..."
 apt-get install -y gcc g++ libpcre3 libpcre3-dev zlib1g zlib1g-dev openssl libssl-dev wget make 2>/dev/null || \
@@ -147,8 +135,7 @@ systemctl daemon-reload
 systemctl enable nginx.service
 echo ""
 
-# ==================== [4/6] 配置文件 ====================
-info "===== [4/6] 生成配置文件 ====="
+info "[4/6] 生成配置文件"
 
 info "写入 /etc/nginx/nginx.conf ..."
 cat > /etc/nginx/nginx.conf << NGINXEOF
@@ -366,8 +353,7 @@ XRAYEOF
 
 echo ""
 
-# ==================== [5/6] 启动服务 ====================
-info "===== [5/6] 启动服务 ====="
+info "[5/6] 启动服务"
 
 info "测试 Nginx 配置..."
 nginx -t
@@ -384,16 +370,11 @@ systemctl is-active --quiet nginx && info "Nginx 运行中" || warn "Nginx 启�
 
 echo ""
 
-# ==================== [6/6] 客户端配置 ====================
-info "===== [6/6] 生成客户端配置 ====="
-
-# URL 编码路径中的 /
+info "[6/6] 生成客户端配置"
 XHTTP_PATH_ENC=$(printf '%s' "$XHTTP_PATH" | sed 's|/|%2F|g')
 
-# 模式3 extra: 上行 CDN, 下行 Reality
 EXTRA_3="%7B%22downloadSettings%22%3A%7B%22address%22%3A%22${VPS_IP}%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22reality%22%2C%22realitySettings%22%3A%7B%22show%22%3Afalse%2C%22serverName%22%3A%22${REALITY_DOMAIN}%22%2C%22fingerprint%22%3A%22chrome%22%2C%22shortId%22%3A%22${SHORT_ID}%22%2C%22publicKey%22%3A%22${PUBLIC_KEY}%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22%22%2C%22path%22%3A%22${XHTTP_PATH_ENC}%22%2C%22mode%22%3A%22auto%22%7D%7D%7D"
 
-# 模式5 extra: 上行 Reality, 下行 CDN
 EXTRA_5="%7B%22downloadSettings%22%3A%7B%22address%22%3A%22${CDN_DOMAIN}%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22tls%22%2C%22tlsSettings%22%3A%7B%22serverName%22%3A%22${CDN_DOMAIN}%22%2C%22allowInsecure%22%3Afalse%2C%22alpn%22%3A%5B%22h2%22%5D%2C%22fingerprint%22%3A%22chrome%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22${CDN_DOMAIN}%22%2C%22path%22%3A%22${XHTTP_PATH_ENC}%22%2C%22mode%22%3A%22auto%22%7D%7D%7D"
 
 cat > ~/client-config.txt << CLIENTEOF
@@ -404,12 +385,8 @@ vless://${UUID2}@${CDN_DOMAIN}:443?encryption=none&security=tls&sni=${CDN_DOMAIN
 vless://${UUID2}@${VPS_IP}:443?encryption=none&security=reality&sni=${REALITY_DOMAIN}&fp=chrome&pbk=${PUBLIC_KEY}&sid=${SHORT_ID}&type=xhttp&path=${XHTTP_PATH}&mode=auto&extra=${EXTRA_5}#%E4%B8%8A%E8%A1%8C%20xhttp%2BReality%20%7C%20%E4%B8%8B%E8%A1%8C%20xhttp%2BTLS%2BCDN
 CLIENTEOF
 
-echo ""
-echo -e "${CYAN}========================================${NC}"
-echo -e "${CYAN}            部署完成${NC}"
-echo -e "${CYAN}========================================${NC}"
-echo ""
-echo -e "${YELLOW}===== 服务端参数 =====${NC}"
+echo -e "\n${CYAN}[+] 部署完成${NC}\n"
+echo -e "${YELLOW}[+] 服务端参数${NC}"
 echo "Reality 域名:   $REALITY_DOMAIN"
 echo "CDN 域名:       $CDN_DOMAIN"
 echo "VPS IP:         $VPS_IP"
@@ -420,7 +397,7 @@ echo "Private Key:    $PRIVATE_KEY"
 echo "Short ID:       $SHORT_ID"
 echo "Path:           $XHTTP_PATH"
 echo ""
-echo -e "${YELLOW}===== 客户端节点 (已保存到 ~/client-config.txt) =====${NC}"
+echo -e "\n${YELLOW}[+] 客户端节点，已保存到 ~/client-config.txt${NC}"
 cat ~/client-config.txt
 echo ""
 info "将以上节点复制到 V2rayN 即可使用"
