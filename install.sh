@@ -13,6 +13,13 @@ error() { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
 
 [[ $EUID -ne 0 ]] && error "请使用 root 用户运行此脚本"
 
+if [[ -n "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+  USER_HOME=$(eval echo "~$SUDO_USER")
+else
+  USER_HOME=$(getent passwd 1000 | cut -d: -f6)
+fi
+[[ -z "$USER_HOME" || ! -d "$USER_HOME" ]] && USER_HOME="/root"
+
 echo -e "\n${CYAN}[+] XHTTP + CDN 一键部署脚本${NC}\n"
 echo -e "${YELLOW}[+] 前置条件 (请确认已在 Cloudflare 完成):${NC}"
 echo "  1. Reality 域名 DNS → 仅 DNS (灰色云朵)"
@@ -377,7 +384,7 @@ EXTRA_3="%7B%22downloadSettings%22%3A%7B%22address%22%3A%22${VPS_IP}%22%2C%22por
 
 EXTRA_5="%7B%22downloadSettings%22%3A%7B%22address%22%3A%22${CDN_DOMAIN}%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22tls%22%2C%22tlsSettings%22%3A%7B%22serverName%22%3A%22${CDN_DOMAIN}%22%2C%22allowInsecure%22%3Afalse%2C%22alpn%22%3A%5B%22h2%22%5D%2C%22fingerprint%22%3A%22chrome%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22${CDN_DOMAIN}%22%2C%22path%22%3A%22${XHTTP_PATH_ENC}%22%2C%22mode%22%3A%22auto%22%7D%7D%7D"
 
-cat > ~/client-config.txt << CLIENTEOF
+cat > "$USER_HOME/client-config.txt" << CLIENTEOF
 vless://${UUID1}@${VPS_IP}:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${REALITY_DOMAIN}&fp=chrome&pbk=${PUBLIC_KEY}&sid=${SHORT_ID}&type=tcp&headerType=none#reality%2Bvision%20%E7%9B%B4%E8%BF%9E
 vless://${UUID2}@${VPS_IP}:443?encryption=none&security=reality&sni=${REALITY_DOMAIN}&fp=chrome&pbk=${PUBLIC_KEY}&sid=${SHORT_ID}&type=xhttp&path=${XHTTP_PATH}&mode=auto#xhttp%2BReality%20%E4%B8%8A%E4%B8%8B%E8%A1%8C%E4%B8%8D%E5%88%86%E7%A6%BB%20%EF%BC%88%E4%B8%8A%E8%A1%8C%E4%B8%BA%20stream-one%20%E6%A8%A1%E5%BC%8F%EF%BC%89
 vless://${UUID2}@${CDN_DOMAIN}:443?encryption=none&security=tls&sni=${CDN_DOMAIN}&fp=chrome&alpn=h2&insecure=0&allowInsecure=0&type=xhttp&host=${CDN_DOMAIN}&path=${XHTTP_PATH}&mode=auto&extra=${EXTRA_3}#%E4%B8%8A%E8%A1%8C%20xhttp%2BTLS%2BCDN%20%7C%20%E4%B8%8B%E8%A1%8C%20xhttp%2BReality
@@ -397,7 +404,7 @@ echo "Private Key:    $PRIVATE_KEY"
 echo "Short ID:       $SHORT_ID"
 echo "Path:           $XHTTP_PATH"
 echo ""
-echo -e "\n${YELLOW}[+] 客户端节点，已保存到 ~/client-config.txt${NC}"
-cat ~/client-config.txt
+echo -e "\n${YELLOW}[+] 客户端节点，已保存到 $USER_HOME/client-config.txt${NC}"
+cat "$USER_HOME/client-config.txt"
 echo ""
 info "将以上节点复制到 V2rayN 即可使用"
