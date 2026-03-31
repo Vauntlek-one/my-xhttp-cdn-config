@@ -103,6 +103,7 @@ command -v curl    >/dev/null 2>&1 || pkg_install curl
 command -v sudo    >/dev/null 2>&1 || pkg_install sudo
 command -v socat   >/dev/null 2>&1 || pkg_install socat
 command -v wget    >/dev/null 2>&1 || pkg_install wget
+command -v tar     >/dev/null 2>&1 || pkg_install tar
 
 if ! command -v crontab >/dev/null 2>&1; then
   case "$OS_ID" in
