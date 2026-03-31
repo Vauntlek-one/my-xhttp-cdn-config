@@ -161,20 +161,17 @@ acme.sh --set-default-ca --server letsencrypt
 
 info "申请双域名证书 (需要 80 端口空闲)..."
 if [[ "$IP_CHOICE" == "2" ]]; then
-  acme.sh --issue -d "$REALITY_DOMAIN" -d "$CDN_DOMAIN" --standalone --listen-v6
+  acme.sh --issue -d "$REALITY_DOMAIN" -d "$CDN_DOMAIN" --standalone --listen-v6 --keylength ec-256 \
+    --pre-hook "systemctl stop nginx 2>/dev/null || true" \
+    --post-hook "systemctl start nginx 2>/dev/null || true"
 else
-  acme.sh --issue -d "$REALITY_DOMAIN" -d "$CDN_DOMAIN" --standalone
+  acme.sh --issue -d "$REALITY_DOMAIN" -d "$CDN_DOMAIN" --standalone --keylength ec-256 \
+    --pre-hook "systemctl stop nginx 2>/dev/null || true" \
+    --post-hook "systemctl start nginx 2>/dev/null || true"
 fi
 
-mkdir -p /etc/ssl/private
-acme.sh --install-cert -d "$REALITY_DOMAIN" --ecc \
-  --key-file /etc/ssl/private/private.key \
-  --fullchain-file /etc/ssl/private/fullchain.cer
-
 echo ""
-
 info "[3/6] 编译安装 Nginx"
-
 info "安装编译依赖..."
 install_build_deps
 
@@ -449,6 +446,13 @@ XRAYEOF
 echo ""
 
 info "[5/6] 启动服务"
+
+info "配置证书自动续签命令..."
+mkdir -p /etc/ssl/private
+acme.sh --install-cert -d "$REALITY_DOMAIN" --ecc \
+  --key-file /etc/ssl/private/private.key \
+  --fullchain-file /etc/ssl/private/fullchain.cer \
+  --reloadcmd "systemctl restart nginx"
 
 info "测试 Nginx 配置..."
 nginx -t
