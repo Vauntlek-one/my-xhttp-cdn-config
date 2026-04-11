@@ -32,6 +32,8 @@ wget -O install.sh https://raw.githubusercontent.com/Yulinanami/my-xhttp-cdn-con
 4. 网络 → gRPC → 已开启
 5. 缓存规则（建议） → 将 XHTTP 路径设为绕过缓存，具体步骤请参考Github仓库的[环境配置.md](./1.环境配置.md)。
 
+> **注意**：脚本强制启用 VLESS Encryption（防 CDN 中间人解密），客户端（V2rayN 等）也需要更新到支持 vlessenc 的新版本。
+
 ## 手动部署
 
 按下面的顺序阅读和执行：
@@ -49,6 +51,12 @@ wget -O install.sh https://raw.githubusercontent.com/Yulinanami/my-xhttp-cdn-con
 3. 上行 XHTTP + TLS + CDN，下行 XHTTP + Reality
 4. XHTTP + TLS 双向 CDN
 5. 上行 XHTTP + Reality，下行 XHTTP + TLS + CDN
+
+## 安全特性
+
+- **VLESS Encryption (vlessenc)**：脚本自动启用 VLESS Encryption，在 VLESS 协议层增加端到端加密（ML-KEM-768 + X25519 后量子安全算法 + PFS），防止 CDN 中间人解密流量内容
+- **Reality**：直连模式使用 REALITY 协议，防止主动探测
+- 仅对 XHTTP 入站启用 vlessenc（因为只有它过 CDN），Vision 直连不需要
 
 ## 流程图（去程 + 回程）
 
