@@ -219,6 +219,15 @@ stop_legacy_nginx_if_needed() {
   fi
 }
 
+stop_caddy_if_running() {
+  if systemctl list-unit-files 2>/dev/null | grep -q '^caddy.service'; then
+    if systemctl is-active --quiet caddy; then
+      info "检测到 Caddy 已自动启动，先停止它以完成 80 端口检查..."
+      systemctl stop caddy 2>/dev/null || true
+    fi
+  fi
+}
+
 check_http_port() {
   if command -v ss >/dev/null 2>&1; then
     local listeners
@@ -722,6 +731,7 @@ main() {
   install_xray
   install_caddy
   stop_legacy_nginx_if_needed
+  stop_caddy_if_running
   check_http_port
   generate_params
   write_configs
