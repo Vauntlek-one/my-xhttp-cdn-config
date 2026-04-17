@@ -14,6 +14,7 @@ install_base_packages_def=$(declare -f install_base_packages)
 repair_caddy_repo_def=$(declare -f repair_caddy_repo_before_apt)
 stop_caddy_def=$(declare -f stop_caddy_if_running)
 main_def=$(declare -f main)
+prepare_caddy_paths_def=$(declare -f prepare_caddy_runtime_paths)
 
 if [[ "$require_root_def" != *"return 0"* ]]; then
   echo "require_root must explicitly return 0 when already running as root" >&2
@@ -52,6 +53,11 @@ fi
 
 if [[ "$main_def" != *"install_caddy;"*"stop_legacy_nginx_if_needed;"*"stop_caddy_if_running;"*"check_http_port;"* ]]; then
   echo "main must stop Caddy before checking whether port 80 is occupied" >&2
+  exit 1
+fi
+
+if [[ "$prepare_caddy_paths_def" != *"chown -R caddy:caddy /var/log/caddy"* ]]; then
+  echo "prepare_caddy_runtime_paths must grant the caddy user write access to /var/log/caddy" >&2
   exit 1
 fi
 

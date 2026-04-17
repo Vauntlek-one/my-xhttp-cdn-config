@@ -652,12 +652,20 @@ UMask=0000
 EOF
 }
 
+prepare_caddy_runtime_paths() {
+  mkdir -p /var/log/caddy
+
+  if id caddy >/dev/null 2>&1; then
+    chown -R caddy:caddy /var/log/caddy
+  fi
+}
+
 write_configs() {
   info "[3/5] 生成配置文件"
 
   mkdir -p "$(dirname "$XRAY_CONFIG_PATH")"
   mkdir -p /etc/caddy
-  mkdir -p /var/log/caddy
+  prepare_caddy_runtime_paths
 
   render_xray_config > "$XRAY_CONFIG_PATH"
   render_caddyfile > "$CADDYFILE_PATH"
