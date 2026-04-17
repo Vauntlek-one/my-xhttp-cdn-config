@@ -18,7 +18,11 @@ warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
 error() { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
 
 require_root() {
-  [[ $EUID -ne 0 ]] && error "请使用 root 用户运行此脚本"
+  if [[ $EUID -ne 0 ]]; then
+    error "请使用 root 用户运行此脚本"
+  fi
+
+  return 0
 }
 
 detect_os() {
