@@ -1,18 +1,140 @@
-IP v4
-vless://YOUR_UUID_1@YOUR_VPS_IPV4:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=YOUR_REALITY_DOMAIN&fp=chrome&pbk=YOUR_PUBILC_KEY&sid=YOUR_SHORT_ID&type=tcp&headerType=none#reality%2Bvision%20%E7%9B%B4%E8%BF%9E
-vless://YOUR_UUID_2@YOUR_VPS_IPV4:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=reality&sni=YOUR_REALITY_DOMAIN&fp=chrome&pbk=YOUR_PUBILC_KEY&sid=YOUR_SHORT_ID&type=xhttp&path=YOUR_PATH&mode=auto#xhttp%2BReality%20%E4%B8%8A%E4%B8%8B%E8%A1%8C%E4%B8%8D%E5%88%86%E7%A6%BB%20%EF%BC%88%E4%B8%8A%E8%A1%8C%E4%B8%BA%20stream-one%20%E6%A8%A1%E5%BC%8F%EF%BC%89
-vless://YOUR_UUID_2@your_cdn_domain:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=tls&sni=YOUR_CDN_DOMAIN&fp=chrome&alpn=h2&insecure=0&allowInsecure=0&type=xhttp&host=YOUR_CDN_DOMAIN&path=YOUR_PATH&mode=auto&extra=%7B%22downloadSettings%22%3A%7B%22address%22%3A%22YOUR_VPS_IPV4%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22reality%22%2C%22realitySettings%22%3A%7B%22show%22%3Afalse%2C%22serverName%22%3A%22YOUR_REALITY_DOMAIN%22%2C%22fingerprint%22%3A%22chrome%22%2C%22shortId%22%3A%22YOUR_SHORT_ID%22%2C%22publicKey%22%3A%22YOUR_PUBILC_KEY%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22%22%2C%22path%22%3A%22YOUR_PATH%22%2C%22mode%22%3A%22auto%22%7D%7D%7D#%E4%B8%8A%E8%A1%8C%20xhttp%2BTLS%2BCDN%20%7C%20%E4%B8%8B%E8%A1%8C%20xhttp%2BReality
-vless://YOUR_UUID_2@your_cdn_domain:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=tls&sni=YOUR_CDN_DOMAIN&fp=chrome&alpn=h2&insecure=0&allowInsecure=0&type=xhttp&host=YOUR_CDN_DOMAIN&path=YOUR_PATH&mode=auto#xhttp%2Btls%20%E5%8F%8C%E5%90%91CDN
-vless://YOUR_UUID_2@YOUR_VPS_IPV4:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=reality&sni=YOUR_REALITY_DOMAIN&fp=chrome&pbk=YOUR_PUBILC_KEY&sid=YOUR_SHORT_ID&type=xhttp&path=YOUR_PATH&mode=auto&extra=%7B%22downloadSettings%22%3A%7B%22address%22%3A%22YOUR_CDN_DOMAIN%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22tls%22%2C%22tlsSettings%22%3A%7B%22serverName%22%3A%22YOUR_CDN_DOMAIN%22%2C%22allowInsecure%22%3Afalse%2C%22alpn%22%3A%5B%22h2%22%5D%2C%22fingerprint%22%3A%22chrome%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22YOUR_CDN_DOMAIN%22%2C%22path%22%3A%22YOUR_PATH%22%2C%22mode%22%3A%22auto%22%7D%7D%7D#%E4%B8%8A%E8%A1%8C%20xhttp%2BReality%20%7C%20%E4%B8%8B%E8%A1%8C%20xhttp%2BTLS%2BCDN
+proxies:
+  # 1. XTLS(Vision)+Reality 直连
+  - name: "出站1-XTLS+Reality"
+    type: vless
+    server: "YOUR_VPS_IP"
+    port: 443
+    uuid: "YOUR_UUID_01"
+    encryption: "none"
+    flow: xtls-rprx-vision
+    network: tcp
+    tls: true
+    alpn: [h2]
+    servername: "YOUR_REALITY_DOMAIN"
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: "YOUR_PUB_KEY"
+      short-id: "YOUR_SHORT_ID"
 
-IP v6（把2001:db8::1换成你的IP v6地址）
-vless://YOUR_UUID_1@[2001:db8::1]:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=YOUR_REALITY_DOMAIN&fp=chrome&pbk=YOUR_PUBILC_KEY&sid=YOUR_SHORT_ID&type=tcp&headerType=none#reality%2Bvision%20%E7%9B%B4%E8%BF%9E
-vless://YOUR_UUID_2@[2001:db8::1]:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=reality&sni=YOUR_REALITY_DOMAIN&fp=chrome&pbk=YOUR_PUBILC_KEY&sid=YOUR_SHORT_ID&type=xhttp&path=YOUR_PATH&mode=auto#xhttp%2BReality%20%E4%B8%8A%E4%B8%8B%E8%A1%8C%E4%B8%8D%E5%88%86%E7%A6%BB%20%EF%BC%88%E4%B8%8A%E8%A1%8C%E4%B8%BA%20stream-one%20%E6%A8%A1%E5%BC%8F%EF%BC%89
-vless://YOUR_UUID_2@your_cdn_domain:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=tls&sni=YOUR_CDN_DOMAIN&fp=chrome&alpn=h2&insecure=0&allowInsecure=0&type=xhttp&host=YOUR_CDN_DOMAIN&path=YOUR_PATH&mode=auto&extra=%7B%22downloadSettings%22%3A%7B%22address%22%3A%22YOUR_VPS_IPV6%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22reality%22%2C%22realitySettings%22%3A%7B%22show%22%3Afalse%2C%22serverName%22%3A%22YOUR_REALITY_DOMAIN%22%2C%22fingerprint%22%3A%22chrome%22%2C%22shortId%22%3A%22YOUR_SHORT_ID%22%2C%22publicKey%22%3A%22YOUR_PUBILC_KEY%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22%22%2C%22path%22%3A%22YOUR_PATH%22%2C%22mode%22%3A%22auto%22%7D%7D%7D#%E4%B8%8A%E8%A1%8C%20xhttp%2BTLS%2BCDN%20%7C%20%E4%B8%8B%E8%A1%8C%20xhttp%2BReality
-vless://YOUR_UUID_2@your_cdn_domain:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=tls&sni=YOUR_CDN_DOMAIN&fp=chrome&alpn=h2&insecure=0&allowInsecure=0&type=xhttp&host=YOUR_CDN_DOMAIN&path=YOUR_PATH&mode=auto#xhttp%2Btls%20%E5%8F%8C%E5%90%91CDN
-vless://YOUR_UUID_2@[2001:db8::1]:443?encryption=YOUR_VLESSENC_ENCRYPTION&security=reality&sni=YOUR_REALITY_DOMAIN&fp=chrome&pbk=YOUR_PUBILC_KEY&sid=YOUR_SHORT_ID&type=xhttp&path=YOUR_PATH&mode=auto&extra=%7B%22downloadSettings%22%3A%7B%22address%22%3A%22YOUR_CDN_DOMAIN%22%2C%22port%22%3A443%2C%22network%22%3A%22xhttp%22%2C%22security%22%3A%22tls%22%2C%22tlsSettings%22%3A%7B%22serverName%22%3A%22YOUR_CDN_DOMAIN%22%2C%22allowInsecure%22%3Afalse%2C%22alpn%22%3A%5B%22h2%22%5D%2C%22fingerprint%22%3A%22chrome%22%7D%2C%22xhttpSettings%22%3A%7B%22host%22%3A%22YOUR_CDN_DOMAIN%22%2C%22path%22%3A%22YOUR_PATH%22%2C%22mode%22%3A%22auto%22%7D%7D%7D#%E4%B8%8A%E8%A1%8C%20xhttp%2BReality%20%7C%20%E4%B8%8B%E8%A1%8C%20xhttp%2BTLS%2BCDN
+  # 2. xhttp+Reality 直连
+  - name: "出站2-xhttp+Reality"
+    type: vless
+    server: "YOUR_VPS_IP"
+    port: 443
+    uuid: "YOUR_UUID_02"
+    encryption: "none"
+    flow: ""
+    network: xhttp
+    tls: true
+    alpn: [h2]
+    servername: "YOUR_REALITY_DOMAIN"
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: "YOUR_PUB_KEY"
+      short-id: "YOUR_SHORT_ID"
+    xhttp-opts:
+      path: /YOUR_XHTTP_PATH
+      mode: auto
+      reuse-settings:
+        max-concurrency: "16-32"
+        c-max-reuse-times: "0"
+        h-max-reusable-secs: "1800-3000"
 
-注意：
-- YOUR_UUID_1 的节点 (Vision 直连) encryption 保持 none，因为不过 CDN
-- YOUR_UUID_2 的节点 (XHTTP) encryption 填入 xray vlessenc 生成的 ML-KEM-768 encryption 值
-- YOUR_VLESSENC_ENCRYPTION 替换为服务端运行 xray vlessenc 生成的 encryption 字符串
+  # 3. 上行 xhttp+TLS+CDN | 下行 xhttp+Reality
+  - name: "出站3-cdn上行+xhttp下行"
+    type: vless
+    server: "YOUR_CDN_DOMAIN"
+    port: 443
+    uuid: "YOUR_UUID_02"
+    encryption: "none"
+    flow: ""
+    network: xhttp
+    tls: true
+    alpn: [h2]
+    servername: "YOUR_CDN_DOMAIN"
+    client-fingerprint: chrome
+    skip-cert-verify: true
+    xhttp-opts:
+      host: "YOUR_CDN_DOMAIN"
+      path: /YOUR_XHTTP_PATH
+      mode: auto
+      reuse-settings:
+        max-concurrency: "16-32"
+        c-max-reuse-times: "0"
+        h-max-reusable-secs: "1800-3000"
+      download-settings:
+        server: "YOUR_VPS_IP"
+        port: 443
+        servername: "YOUR_REALITY_DOMAIN"
+        reality-opts:
+          public-key: "YOUR_PUB_KEY"
+          short-id: "YOUR_SHORT_ID"
+        reuse-settings:
+          max-concurrency: "16-32"
+          c-max-reuse-times: "0"
+          h-max-reusable-secs: "1800-3000"
+
+  # 4. xhttp+TLS+CDN (上下行不分离)
+  - name: "出站4-cdn上下行"
+    type: vless
+    server: "YOUR_CDN_DOMAIN"
+    port: 443
+    uuid: "YOUR_UUID_02"
+    encryption: "none"
+    flow: ""
+    network: xhttp
+    tls: true
+    alpn: [h2]
+    servername: "YOUR_CDN_DOMAIN"
+    client-fingerprint: chrome
+    skip-cert-verify: true
+    xhttp-opts:
+      host: "YOUR_CDN_DOMAIN"
+      path: /YOUR_XHTTP_PATH
+      mode: auto
+      reuse-settings:
+        max-concurrency: "16-32"
+        c-max-reuse-times: "0"
+        h-max-reusable-secs: "1800-3000"
+
+  # 5. 上行 xhttp+Reality | 下行 xhttp+TLS+CDN
+  - name: "出站5-上xhttp+Reality下xhttp+TLS+CDN"
+    type: vless
+    server: "YOUR_VPS_IP"
+    port: 443
+    uuid: "YOUR_UUID_02"
+    encryption: "none"
+    flow: ""
+    network: xhttp
+    tls: true
+    alpn: [h2]
+    servername: "YOUR_REALITY_DOMAIN"
+    client-fingerprint: chrome
+    skip-cert-verify: true
+    reality-opts:
+      public-key: "YOUR_PUB_KEY"
+      short-id: "YOUR_SHORT_ID"
+    xhttp-opts:
+      host: "YOUR_CDN_DOMAIN"
+      path: /YOUR_XHTTP_PATH
+      mode: auto
+      reuse-settings:
+        max-concurrency: "16-32"
+        c-max-reuse-times: "0"
+        h-max-reusable-secs: "1800-3000"
+      download-settings:
+        path: /YOUR_XHTTP_PATH
+        host: ""
+        server: "YOUR_CDN_DOMAIN"
+        port: 443
+        tls: true
+        alpn: [h2]
+        servername: "YOUR_CDN_DOMAIN"
+        client-fingerprint: chrome
+        skip-cert-verify: true
+        reality-opts:
+          public-key: ""
+        reuse-settings:
+          max-concurrency: "16-32"
+          c-max-reuse-times: "0"
+          h-max-reusable-secs: "1800-3000"
