@@ -104,9 +104,57 @@ prompt_inputs() {
   echo ""
 }
 
+repair_caddy_repo_before_apt() {
+  local caddy_list="/etc/apt/sources.list.d/caddy-stable.list"
+  local disabled_caddy_list="${caddy_list}.disabled-by-install-sh"
+  local keyring_path="/usr/share/keyrings/caddy-stable-archive-keyring.gpg"
+  local key_url="https://dl.cloudsmith.io/public/caddy/stable/gpg.key"
+  local list_url="https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt"
+
+  case "$OS_ID" in
+    debian|ubuntu)
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+
+  if [[ ! -f "$caddy_list" && ! -f "$disabled_caddy_list" ]]; then
+    return 0
+  fi
+
+  install -m 0755 -d /usr/share/keyrings
+
+  if command -v gpg >/dev/null 2>&1; then
+    if command -v curl >/dev/null 2>&1; then
+      curl -fsSL "$key_url" | gpg --dearmor --yes -o "$keyring_path"
+      chmod o+r "$keyring_path"
+      curl -fsSL "$list_url" -o "$caddy_list"
+      rm -f "$disabled_caddy_list"
+      return 0
+    fi
+
+    if command -v wget >/dev/null 2>&1; then
+      wget -qO- "$key_url" | gpg --dearmor --yes -o "$keyring_path"
+      chmod o+r "$keyring_path"
+      wget -qO "$caddy_list" "$list_url"
+      rm -f "$disabled_caddy_list"
+      return 0
+    fi
+  fi
+
+  if [[ -f "$caddy_list" ]]; then
+    warn "检测到残留的 Caddy APT 源，但当前环境缺少修复所需工具，先暂时禁用它，稍后在安装 Caddy 阶段重新写入。"
+    mv -f "$caddy_list" "$disabled_caddy_list"
+  fi
+
+  return 0
+}
+
 install_base_packages() {
   info "[1/5] 安装基础环境"
 
+  repair_caddy_repo_before_apt
   pkg_update
 
   command -v curl >/dev/null 2>&1 || pkg_install curl
