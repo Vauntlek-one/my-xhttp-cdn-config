@@ -148,8 +148,9 @@ install_caddy() {
 
   case "$OS_ID" in
     debian|ubuntu)
-      install -m 0755 -d /etc/apt/keyrings
-      curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --dearmor --yes -o /etc/apt/keyrings/caddy-stable-archive-keyring.gpg
+      install -m 0755 -d /usr/share/keyrings
+      curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+      chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
       curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt -o /etc/apt/sources.list.d/caddy-stable.list
       pkg_update
       pkg_install caddy
